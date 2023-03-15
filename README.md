@@ -6,7 +6,7 @@ A command line utility that fetches the latest database backup from Azure and ru
 
 ## Usage
 1. Clone this repository.
-2. Run:
+2. Install packages:
 ```
 yarn
 ```
