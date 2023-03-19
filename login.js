@@ -2,7 +2,7 @@ import { launch } from "puppeteer";
 import sleep from "sleep-promise";
 import { saveCookies } from "./cookies-storage.js";
 
-(async () => {
+export default async () => {
     const browser = await launch({ headless: false });
     const page = await browser.newPage();
 
@@ -25,4 +25,4 @@ import { saveCookies } from "./cookies-storage.js";
     console.log("Credentials saved in keytar.");
 
     await browser.close();
-})();
+}

@@ -1,11 +1,14 @@
 {
   "name": "@bratislava/ristor",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "ristor.js",
+  "bin": {
+    "@bratislava/ristor": "ristor.js"
+  },
   "license": "MIT",
   "scripts": {
     "login": "node ./login.js",
-    "start": "node ./index.js"
+    "start": "node ristor.js"
   },
   "dependencies": {
     "await-spawn": "^4.0.2",
