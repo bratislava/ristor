@@ -2,8 +2,14 @@ import { promises as fs } from "fs";
 import fetch from "node-fetch";
 import { file } from "tmp-promise";
 import inquirer from "inquirer";
-import { projects, envs } from "./defs.js";
+import { envs, projects } from "./defs.js";
 import spawn from "await-spawn";
+import { getCookies } from "./cookies-storage.js";
+
+const cookies = await getCookies();
+if (!cookies) {
+    throw new Error("No credentials saved. Authenticate first.");
+}
 
 const { project, env } = await inquirer
     .prompt([
@@ -27,42 +33,38 @@ const { project, env } = await inquirer
         return { project, env };
     });
 
-const db = await inquirer
-    .prompt([
-        {
-            type: "input",
-            name: "host",
-            message: "Host?",
-            default: project.defaultDb.host,
-        },
-        {
-            type: "number",
-            name: "port",
-            message: "Port?",
-            default: project.defaultDb.port,
-        },
-        {
-            type: "input",
-            name: "database",
-            message: "Database?",
-            default: project.defaultDb.database,
-        },
-        {
-            type: "input",
-            name: "username",
-            message: "Username?",
-            default: project.defaultDb.username,
-        },
-        {
-            type: "input",
-            name: "password",
-            message: "Password?",
-            default: project.defaultDb.password,
-        },
-    ])
-
-const cookiesRaw = await fs.readFile("cookies.txt", { encoding: "utf-8" });
-const cookies = JSON.parse(cookiesRaw);
+const db = await inquirer.prompt([
+    {
+        type: "input",
+        name: "host",
+        message: "Host?",
+        default: project.defaultDb.host,
+    },
+    {
+        type: "number",
+        name: "port",
+        message: "Port?",
+        default: project.defaultDb.port,
+    },
+    {
+        type: "input",
+        name: "database",
+        message: "Database?",
+        default: project.defaultDb.database,
+    },
+    {
+        type: "input",
+        name: "username",
+        message: "Username?",
+        default: project.defaultDb.username,
+    },
+    {
+        type: "input",
+        name: "password",
+        message: "Password?",
+        default: project.defaultDb.password,
+    },
+]);
 
 const cookieString = cookies
     .filter((cookie) => cookie.domain === "dev.azure.com" || cookie.domain === ".dev.azure.com")
@@ -115,12 +117,10 @@ const foldersList = (
 ).dataProviders["ms.vss-build-web.run-artifacts-data-provider"].items;
 
 const projectFolder = foldersList.find((folder) => folder.name === `/${project.folder}`);
-const strapiSqlArtifact = projectFolder.items.find(
-    (item) => {
-        const withoutFolder = item.name.replace(`/${project.folder}/`, '');
-        return project.fileRegex.test(withoutFolder);
-    }
-);
+const strapiSqlArtifact = projectFolder.items.find((item) => {
+    const withoutFolder = item.name.replace(`/${project.folder}/`, "");
+    return project.fileRegex.test(withoutFolder);
+});
 
 const downloadUrl = (
     await azureFetch(
@@ -146,7 +146,7 @@ const downloadUrl = (
 
 console.log(`Downloading file "${strapiSqlArtifact.name}".`);
 
-const { path: tempFilePath, cleanup } = await file({ prefix: 'db-', postfix: '.sql' });
+const { path: tempFilePath, cleanup } = await file({ prefix: "db-", postfix: ".sql" });
 
 await fetch(downloadUrl, {
     headers: {
@@ -156,15 +156,23 @@ await fetch(downloadUrl, {
     .then((r) => r.arrayBuffer())
     .then((r) => fs.writeFile(tempFilePath, Buffer.from(r)));
 
-console.log('File downloaded.')
+console.log("File downloaded.");
 
 const connectionString = `postgres://${db.username}:${db.password}@${db.host}:${db.port}/postgres`;
 
 // https://stackoverflow.com/a/5408501
-console.log(`Terminating existing connections to database "${db.database}".`)
-await spawn("psql", [`--dbname=${connectionString}`, "-c", `SELECT pg_terminate_backend(pg_stat_activity.pid) FROM pg_stat_activity WHERE pg_stat_activity.datname = '${db.database}' AND pid <> pg_backend_pid();`], { stdio: "inherit" });
+console.log(`Terminating existing connections to database "${db.database}".`);
+await spawn(
+    "psql",
+    [
+        `--dbname=${connectionString}`,
+        "-c",
+        `SELECT pg_terminate_backend(pg_stat_activity.pid) FROM pg_stat_activity WHERE pg_stat_activity.datname = '${db.database}' AND pid <> pg_backend_pid();`,
+    ],
+    { stdio: "inherit" }
+);
 
-console.log(`Restoring SQL dump.`)
+console.log(`Restoring SQL dump.`);
 await spawn("psql", [`--dbname=${connectionString}`, "-f", tempFilePath], { stdio: "inherit" });
 
 cleanup();

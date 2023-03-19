@@ -1,6 +1,6 @@
 import { launch } from "puppeteer";
 import sleep from "sleep-promise";
-import fs from "fs";
+import { saveCookies } from "./cookies-storage.js";
 
 (async () => {
     const browser = await launch({ headless: false });
@@ -17,11 +17,12 @@ import fs from "fs";
     while (!disconnected) {
         try {
             cookies = await page.cookies();
-        } catch (e) { }
+        } catch (e) {}
         await sleep(50);
     }
 
-    fs.writeFileSync("cookies.txt", JSON.stringify(cookies, null, 2));
+    await saveCookies(cookies);
+    console.log("Credentials saved in keytar.");
 
     await browser.close();
 })();
