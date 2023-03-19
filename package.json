@@ -5,6 +5,10 @@
   "bin": {
     "@bratislava/ristor": "ristor.js"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bratislava/ristor.git"
+  },
   "license": "MIT",
   "scripts": {
     "login": "node ./login.js",
