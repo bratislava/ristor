@@ -91,7 +91,7 @@ export default async () => {
                 ...runs.value
                     .filter((pipeline) => pipeline.result === "succeeded")
                     .map((run) => ({
-                        name: run.createdDate.substr(0, 16).replace("T", " "),
+                        name: `${run.createdDate.substr(0, 16).replace("T", " ")} UTC`,
                         value: run.id,
                     })),
                 new inquirer.Separator(),
@@ -173,7 +173,7 @@ export default async () => {
         .then((r) => r.arrayBuffer())
         .then((r) => fs.writeFile(tempFilePath, Buffer.from(r)));
 
-    console.log("File downloaded.");
+    console.log(`File downloaded to "${tempFilePath}".`);
 
     const connectionString = `postgres://${db.username}:${db.password}@${db.host}:${db.port}/postgres`;
 
@@ -192,5 +192,6 @@ export default async () => {
     console.log(`Restoring SQL dump.`);
     await spawn("psql", [`--dbname=${connectionString}`, "-f", tempFilePath], { stdio: "inherit" });
 
-    cleanup();
+    await cleanup();
+    console.log(`File "${tempFilePath}" deleted.`);
 };
