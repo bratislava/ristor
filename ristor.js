@@ -137,7 +137,7 @@ export default async () => {
     ).dataProviders["ms.vss-build-web.run-artifacts-data-provider"].items;
 
     const projectFolder = foldersList.find((folder) => folder.name === `/${project.folder}`);
-    const strapiSqlArtifact = projectFolder.items.find((item) => {
+    const sqlArtifact = projectFolder.items.find((item) => {
         const withoutFolder = item.name.replace(`/${project.folder}/`, "");
         return project.fileRegex.test(withoutFolder);
     });
@@ -153,7 +153,7 @@ export default async () => {
                             artifactId: artifactId,
                             buildId: buildId,
                             compressDownload: false,
-                            path: strapiSqlArtifact.sourcePath,
+                            path: sqlArtifact.sourcePath,
                             saveAbsolutePath: true,
                             sourcePage: sourcePage,
                         },
@@ -164,7 +164,7 @@ export default async () => {
         )
     ).dataProviders["ms.vss-build-web.run-artifacts-download-data-provider"].downloadUrl;
 
-    console.log(`Downloading file "${strapiSqlArtifact.name}".`);
+    console.log(`Downloading file "${sqlArtifact.name}".`);
 
     const { path: tempFilePath, cleanup } = await file({ prefix: "db-", postfix: ".sql" });
 
