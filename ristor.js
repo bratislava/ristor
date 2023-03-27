@@ -12,6 +12,23 @@ export default async () => {
         throw new Error("No credentials saved. Authenticate first.");
     }
 
+    const cookieString = cookies
+        .filter((cookie) => cookie.domain === "dev.azure.com" || cookie.domain === ".dev.azure.com")
+        .map((cookie) => `${cookie.name}=${cookie.value}`)
+        .join("; ");
+
+    const azureFetch = (path, data) =>
+        fetch(`https://dev.azure.com/bratislava-innovation/${path}`, {
+            headers: {
+                Cookie: cookieString,
+                "Content-Type": "application/json",
+            },
+            ...(data ?? {}),
+        }).then((r) => r.json());
+
+    // Preload runs
+    const runsPromise = azureFetch("/Inovacie/_apis/pipelines/28/runs?api-version=7.0");
+
     const { project, env } = await inquirer
         .prompt([
             {
@@ -67,21 +84,7 @@ export default async () => {
         },
     ]);
 
-    const cookieString = cookies
-        .filter((cookie) => cookie.domain === "dev.azure.com" || cookie.domain === ".dev.azure.com")
-        .map((cookie) => `${cookie.name}=${cookie.value}`)
-        .join("; ");
-
-    const azureFetch = (path, data) =>
-        fetch(`https://dev.azure.com/bratislava-innovation/${path}`, {
-            headers: {
-                Cookie: cookieString,
-                "Content-Type": "application/json",
-            },
-            ...(data ?? {}),
-        }).then((r) => r.json());
-
-    const runs = await azureFetch("/Inovacie/_apis/pipelines/28/runs?api-version=7.0");
+    const runs = await runsPromise;
     const { buildId } = await inquirer.prompt([
         {
             type: "list",
