@@ -82,7 +82,23 @@ export default async () => {
         }).then((r) => r.json());
 
     const runs = await azureFetch("/Inovacie/_apis/pipelines/28/runs?api-version=7.0");
-    const buildId = runs.value.find((pipeline) => pipeline.result === "succeeded").id;
+    const { buildId } = await inquirer.prompt([
+        {
+            type: "list",
+            name: "buildId",
+            message: "Run?",
+            choices: [
+                ...runs.value
+                    .filter((pipeline) => pipeline.result === "succeeded")
+                    .map((run) => ({
+                        name: run.createdDate.substr(0, 16).replace("T", " "),
+                        value: run.id,
+                    })),
+                new inquirer.Separator(),
+            ],
+        },
+    ]);
+
     const artifacts = await azureFetch(`/Inovacie/_apis/build/builds/${buildId}/artifacts?api-version=4.1`);
     const artifactId = artifacts.value.find((artifact) => artifact.name === env.folder).id;
 
