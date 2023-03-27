@@ -10,13 +10,13 @@ A command line utility that fetches the latest database backup from Azure and ru
 ```
 yarn
 ```
-3. Authenticate. This opens a browser window with login screen, after the login close the browser. Your Azure cookies will be stored in `cookies.txt`.
+3. Authenticate. This opens a browser window with login screen, after the login close the browser (and make sure the process does not keep running in the background). Your Azure cookies will be stored using `keytar`.
 ```
-yarn run login
+yarn login
 ```
 4. Run the command and follow the instructions. `psql` must be available from your machines env path.
 ```
-yarn run
+yarn ristor
 ```
 
 ## Contribute
