@@ -35,6 +35,18 @@ export const projects = [
         },
         fileRegex: /^strapi-\d{4}-\d{2}-\d{2}\.sql$/
     },
+    {
+        name: "Nadacia mesta Bratislavy",
+        folder: "city-foundation-strapi",
+        defaultDb: {
+          port: "54320",
+          host: "localhost",
+          database: "strapi",
+          username: "postgres",
+          password: "postgres",
+        },
+        fileRegex: /^strapi-\d{4}-\d{2}-\d{2}\.sql$/,
+    },
 ]
 
 export const envs = [
