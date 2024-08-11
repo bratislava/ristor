@@ -5,7 +5,7 @@
   "main": "index.js",
   "type": "module",
   "bin": {
-    "ristor": "./index.js"
+    "ristor": "index.js"
   },
   "scripts": {
     "start": "node index.js",
