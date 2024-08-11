@@ -1,23 +1,43 @@
 # @bratislava/ristor
 
-A command line utility that fetches the latest database backup from Azure and runs restore `psql` command.
+@bratislava/ristor is a command-line tool for downloading and restoring PostgreSQL database dumps from Bratislava.sk Minio storage.
 
-![image](video.gif)
+## Installation
+
+To install ristor globally, run:
+
+```bash
+npm install -g @bratislava/ristor
+```
 
 ## Usage
-1. Clone this repository.
-2. Install packages:
-```
-yarn
-```
-3. Authenticate. This opens a browser window with login screen, after the login close the browser (and make sure the process does not keep running in the background). Your Azure cookies will be stored using `keytar`.
-```
-yarn login
-```
-4. Run the command and follow the instructions. `psql` must be available from your machines env path.
-```
-yarn ristor
+
+After installation, you can run the tool using the `ristor` command:
+
+```bash
+ristor
 ```
 
-## Contribute
-To add more projects / environments edit `defs.js`.
+The tool will guide you through the following steps:
+
+1. Enter the Minio sharable download URL for the SQL dump file.
+2. Provide database connection details (host, port, database name, username, and password).
+
+The tool will then:
+
+1. Download the SQL dump file.
+2. Terminate existing connections to the specified database.
+3. Restore the SQL dump to the specified database.
+4. Clean up the temporary files.
+
+## Requirements
+
+- PostgreSQL client (`psql` command should be available in your system PATH)
+
+## Configuration
+
+The tool uses default database configurations based on the project path in the Minio URL. You can modify these defaults in the `defaults.js` file.
+
+## License
+
+This project is licensed under the European Union Public Licence (EUPL) version 1.2 or later. See the [LICENSE](LICENSE) file for details.

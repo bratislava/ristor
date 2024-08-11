@@ -1,27 +1,23 @@
 {
   "name": "@bratislava/ristor",
   "version": "1.0.0",
+  "description": "A tool for restoring Bratislava.sk PostgreSQL database dumps",
   "main": "index.js",
+  "type": "module",
   "bin": {
-    "@bratislava/ristor": "index.js"
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/bratislava/ristor.git"
+    "ristor": "./index.js"
   },
   "scripts": {
-    "login": "node ./index.js login",
-    "ristor": "node ./index.js"
+    "start": "node index.js",
+    "prettier": "prettier --write ."
   },
-  "license": "MIT",
+  "license": "EUPL-1.2",
   "dependencies": {
     "await-spawn": "^4.0.2",
-    "inquirer": "^9.1.4",
-    "keytar": "^7.9.0",
-    "node-fetch": "^3.3.1",
-    "puppeteer": "^19.7.5",
-    "sleep-promise": "^9.1.0",
+    "inquirer": "^10.1.8",
     "tmp-promise": "^3.0.3"
   },
-  "type": "module"
+  "devDependencies": {
+    "prettier": "^3.3.3"
+  }
 }
