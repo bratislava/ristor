@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 import inquirer from "inquirer";
 import { defaults } from "./defaults.js";
 import spawn from "await-spawn";
