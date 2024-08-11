@@ -7,7 +7,7 @@
 To install ristor globally, run:
 
 ```bash
-npm install -g @bratislava/ristor
+npm install -g @bratislava/ristor@latest
 ```
 
 ## Usage
