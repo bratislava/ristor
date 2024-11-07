@@ -5,31 +5,64 @@ import spawn from "await-spawn";
 import { file } from "tmp-promise";
 import { promises as fs } from "fs";
 
+function extractProjectPath(url) {
+  if (!url) return null;
+
+  try {
+    const parsedUrl = new URL(url);
+    if (!parsedUrl.pathname.includes('/browser/db-backups/')) {
+      throw new Error('Invalid browser URL format');
+    }
+
+    const relevantPath = parsedUrl.pathname.split('/browser/db-backups/')[1];
+    if (!relevantPath) {
+      throw new Error('Invalid browser URL format');
+    }
+
+    const decodedPath = decodeURIComponent(relevantPath);
+    const pathSegments = decodedPath.split('/');
+
+    if (pathSegments.length < 3) {
+      throw new Error('Invalid browser URL format');
+    }
+
+    return `${pathSegments[1]}/${pathSegments[2]}`;
+  } catch (error) {
+    throw new Error('Invalid browser URL format');
+  }
+}
+
 async function main() {
-  const { downloadUrl } = await inquirer.prompt([
+  const { downloadUrl, browserUrl } = await inquirer.prompt([
     {
       type: "input",
       name: "downloadUrl",
       message: "Enter the Minio sharable download URL:",
       validate: (input) => {
-        const parsedUrl = new URL(input);
-        const pathSegments = parsedUrl.pathname.split("/").filter(Boolean);
-        return (
-          (input.startsWith("https://s3.bratislava.sk/db-backups/") &&
-            pathSegments.length >= 4 &&
-            parsedUrl.pathname.endsWith(".sql")) ||
-          "Invalid URL format."
-        );
+        return input.startsWith("https://console.s3.bratislava.sk/api/v1/download-shared-object/") ||
+            "Invalid URL format.";
+      },
+    },
+    {
+      type: "input",
+      name: "browserUrl",
+      message: "Enter the browser URL (optional, for project detection):",
+      default: "",
+      validate: (input) => {
+        if (!input) return true;
+        try {
+          extractProjectPath(input);
+          return true;
+        } catch (error) {
+          return error.message;
+        }
       },
     },
   ]);
 
-  const parsedUrl = new URL(downloadUrl);
-  const pathSegments = parsedUrl.pathname.split("/").filter(Boolean);
-  const projectPath = pathSegments.slice(2, 4).join("/");
-
-  const defaultValues = defaults.find((d) => projectPath.match(d.regex))
-    .database ?? {
+  const projectPath = extractProjectPath(browserUrl);
+  const projectPathDefaults = projectPath ? defaults.find((d) => projectPath.match(d.regex)) : null;
+  const defaultValues = projectPathDefaults?.database ?? {
     host: "localhost",
     port: 5432,
     database: "db",
@@ -70,8 +103,7 @@ async function main() {
     },
   ]);
 
-  const filename = pathSegments[pathSegments.length - 1];
-  console.log(`Downloading file ${filename}.`);
+  console.log(`Downloading file.`);
   const { path: tempFilePath, cleanup } = await file({
     prefix: "db-",
     postfix: ".sql",

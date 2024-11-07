@@ -21,6 +21,7 @@ ristor
 The tool will guide you through the following steps:
 
 1. Enter the Minio sharable download URL for the SQL dump file.
+2. Optionally, enter the browser URL to get the project information.
 2. Provide database connection details (host, port, database name, username, and password).
 
 The tool will then:
