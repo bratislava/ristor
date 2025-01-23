@@ -1,6 +1,6 @@
 {
   "name": "@bratislava/ristor",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "A tool for restoring Bratislava.sk PostgreSQL database dumps",
   "main": "index.js",
   "type": "module",
